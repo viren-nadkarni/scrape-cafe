@@ -98,3 +98,6 @@ Session.vim
 *~
 # auto-generated tag files
 tags
+
+scrapecafe/tokens.py
+scrapecafe/gradcafe.db

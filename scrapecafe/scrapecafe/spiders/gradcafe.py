@@ -6,9 +6,10 @@ from scrapecafe.items import ScrapecafeItem
 class GradcafeSpider(scrapy.Spider):
     name = "gradcafe"
     allowed_domains = ["thegradcafe.com"]
-    start_urls = (
-        'http://thegradcafe.com/survey/index.php?q=computer',
-    )
+
+    keywords = ['computer', 'cybersecurity', 'security', 'assurance']
+
+    start_urls = tuple( ['http://thegradcafe.com/survey/index.php?q={}'.format(keyword) for keyword in keywords] )
     status_key = {'A': 'American', 'U': 'International, with US degree', 'I': 'International, without US degree', 'O': 'Other', '?': 'Unknown'}
 
     def parse(self, response):
