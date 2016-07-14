@@ -19,6 +19,7 @@ class GradcafeSpider(scrapy.Spider):
             institution = tds[0].xpath('text()').extract()
             program = tds[1].xpath('text()').extract()
             decision = tds[2].xpath('span/text()').extract() + tds[2].xpath('text()').extract()
+            scores = tds[2].xpath('a/span/text()').extract()
             status = tds[3].xpath('text()').extract() if len(tds) > 3 else list()
             notes = tr.xpath('td/ul/li[2]/text()').extract() if len(tr.xpath('td/ul/li[2]/text()')) > 0 else list()
 
@@ -28,5 +29,7 @@ class GradcafeSpider(scrapy.Spider):
             item['decision'] = ''.join(decision).strip()
             item['status'] = self.status_key.get(''.join(status), '').strip()
             item['notes'] = ''.join(notes).strip()
+            item['gpa'] = scores[0][2:] if len(scores) else ''
+            item['gre'] = scores[1][2:] if len(scores) else ''
 
             yield item

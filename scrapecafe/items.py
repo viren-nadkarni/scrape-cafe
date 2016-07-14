@@ -16,3 +16,5 @@ class ScrapecafeItem(scrapy.Item):
     decision = scrapy.Field()
     status = scrapy.Field()
     notes = scrapy.Field()
+    gre = scrapy.Field()
+    gpa = scrapy.Field()

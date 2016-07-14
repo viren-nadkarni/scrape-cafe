@@ -27,18 +27,21 @@ class ScrapecafePipeline(object):
         self.all_items = self.curs.execute('SELECT decision, institution, notes, program, status from gradcafe').fetchall()
 
     def process_item(self, item, spider):
-        item_tuple = (item['decision'].decode("ascii","ignore"), item['institution'].decode("ascii","ignore"), 
-                item['notes'].decode("ascii","ignore"), item['program'].decode("ascii","ignore"), item['status'].decode("ascii","ignore"))
+        item_tuple = (item['decision'], item['institution'], item['notes'], item['program'], item['status'])
 
         if item_tuple not in self.all_items:
             # markdown foo
-            text_md = '*Institution:* {}\n*Program:* {}\n*Decision:* {}\n*Status:* {}\n*Notes:* {}'.format(item['institution'], item['program'], item['decision'], item['status'], item['notes'])
+            text_md = u'*Institution:* {}\n*Program:* {}\n*Decision:* {}\n*GRE:* {} *GPA:* {}\n*Status:* {}\n*Notes:* {}'.format(
+                    item['institution'], item['program'], item['decision'], item['gre'], item['gpa'], item['status'], item['notes'])
 
             # send telegram message
-            requests.get('https://api.telegram.org/bot{}/sendMessage'.format(BOT_API_TOKEN),
-                    params={'chat_id': '@scrapecafe', 'parse_mode': 'Markdown', 'text': text_md})
+            requests.get('https://api.telegram.org/bot{}/sendMessage'.format(BOT_API_TOKEN), 
+                    params={'chat_id': '@scrapecafe', 
+                        'parse_mode': 'Markdown', 
+                        'text': text_md})
 
-            self.curs.execute('INSERT INTO gradcafe (time, decision, institution, notes, program, status) VALUES (?, ?, ?, ?, ?, ?)', (int(time.time()),) + item_tuple)
+            self.curs.execute('INSERT INTO gradcafe (time, decision, institution, notes, program, status) VALUES (?, ?, ?, ?, ?, ?)', 
+                    (int(time.time()),) + item_tuple)
             self.conn.commit()
 
         return item
