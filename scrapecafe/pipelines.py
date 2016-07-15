@@ -9,6 +9,8 @@ import time
 import requests
 from tokens import *
 
+# the name of the channel to which the bot will broadcast
+CHANNEL = '@scrapecafe'
 
 class ScrapecafePipeline(object):
     def __init__(self):
@@ -31,12 +33,15 @@ class ScrapecafePipeline(object):
 
         if item_tuple not in self.all_items:
             # markdown foo
-            text_md = u'*Institution:* {}\n*Program:* {}\n*Decision:* {}\n*GRE:* {} *GPA:* {}\n*Status:* {}\n*Notes:* {}'.format(
-                    item['institution'], item['program'], item['decision'], item['gre'], item['gpa'], item['status'], item['notes'])
+            text_md = u'*Institution:* {}\n*Program:* {}\n*Decision:* {}\n*Status:* {}\n'.format(item['institution'], item['program'], item['decision'], item['status'])
+            if item['gre'] or item['gpa']:
+                text_md += u'*GRE:* {} *GPA:* {}\n'.format(item['gre'], item['gpa'])
+            if item['notes']:
+                text_md += u'*Notes:* {}'.format(item['notes'])
 
-            # send telegram message
+            # send the telegram message
             requests.get('https://api.telegram.org/bot{}/sendMessage'.format(BOT_API_TOKEN), 
-                    params={'chat_id': '@scrapecafe', 
+                    params={'chat_id': CHANNEL, 
                         'parse_mode': 'Markdown', 
                         'text': text_md})
 
