@@ -7,13 +7,11 @@
 import sqlite3
 import time
 import requests
-from tokens import *
 
-# the name of the channel to which the bot will broadcast
-CHANNEL = '@scrapecafe'
 
 class ScrapecafePipeline(object):
-    def __init__(self):
+    def __init__(self, settings):
+        self.settings = settings
         self.conn = sqlite3.connect('./gradcafe.db')
         self.curs = self.conn.cursor()
         self.curs.execute('''CREATE TABLE IF NOT EXISTS gradcafe (
@@ -40,8 +38,8 @@ class ScrapecafePipeline(object):
                 text_md += u'*Notes:* {}'.format(item['notes'])
 
             # send the telegram message
-            requests.get('https://api.telegram.org/bot{}/sendMessage'.format(BOT_API_TOKEN), 
-                    params={'chat_id': CHANNEL, 
+            requests.get('https://api.telegram.org/bot{}/sendMessage'.format(self.settings['TELEGRAM_BOT_API_KEY']), 
+                    params={'chat_id': self.settings['TELEGRAM_CHANNEL_NAME'], 
                         'parse_mode': 'Markdown', 
                         'text': text_md})
 
@@ -50,3 +48,8 @@ class ScrapecafePipeline(object):
             self.conn.commit()
 
         return item
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        settings = crawler.settings
+        return cls(settings)

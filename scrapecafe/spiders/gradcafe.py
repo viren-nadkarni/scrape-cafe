@@ -6,11 +6,12 @@ from scrapecafe.items import ScrapecafeItem
 class GradcafeSpider(scrapy.Spider):
     name = "gradcafe"
     allowed_domains = ["thegradcafe.com"]
-
-    keywords = ['computer', 'cybersecurity', 'security', 'assurance']
-
-    start_urls = tuple( ['http://thegradcafe.com/survey/index.php?q={}'.format(keyword) for keyword in keywords] )
     status_key = {'A': 'American', 'U': 'International, with US degree', 'I': 'International, without US degree', 'O': 'Other', '?': 'Unknown'}
+
+    def __init__(self, settings):
+        super(GradcafeSpider, self).__init__()
+        self.settings = settings
+        self.start_urls = tuple( ['http://thegradcafe.com/survey/index.php?q={}'.format(keyword) for keyword in self.settings['KEYWORDS']] )
 
     def parse(self, response):
         trs = response.xpath('//*[@id="my-table"]/tr')
@@ -33,3 +34,8 @@ class GradcafeSpider(scrapy.Spider):
             item['gre'] = scores[1][2:] if len(scores) else ''
 
             yield item
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        settings = crawler.settings
+        return cls(settings)
